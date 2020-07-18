@@ -14,7 +14,7 @@ type application struct {
 }
 
 func main() {
-	// command line argument
+	// Parsing runtime config settings
 	addr := flag.String("addr", ":8000", "HTTP Network Address")
 	flag.Parse()
 
@@ -27,23 +27,11 @@ func main() {
 		infoLog:  infoLog,
 	}
 
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet/create", app.createSnippet)
-	mux.HandleFunc("/snippet", app.showSnippet)
-
-	// File server to serve static files
-	fileServer := http.FileServer(http.Dir("../../ui/static/"))
-
-	// Register filesServer as handler
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-
-	// Handler http errors with our custom loggers
+	// Custom http.Server struct
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
-		Handler:  mux,
+		Handler:  app.routes(),
 	}
 
 	infoLog.Println("Starting server on %s", *addr)

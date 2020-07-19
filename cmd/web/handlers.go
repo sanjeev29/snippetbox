@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	// "html/template"
 	"net/http"
 	"snippetbox/pkg/models"
@@ -20,31 +21,29 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, snippet := range s {
-		fmt.Fprintf(w, "%v\n", snippet)
+	data := &templateData{Snippets: s}
+
+	files := []string{
+		"../../ui/html/home.html",
+		"../../ui/html/base.html",
+		"../../ui/html/footer.html",
 	}
 
-	// files := []string{
-	// 	"../../ui/html/home.html",
-	// 	"../../ui/html/base.html",
-	// 	"../../ui/html/footer.html",
-	// }
+	// Parse template files
+	ts, err := template.ParseFiles(files...)
 
-	// // Parse home template file
-	// ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.errorLog.Println(err.Error())
+		app.serverError(w, err)
+		return
+	}
 
-	// if err != nil {
-	// 	app.errorLog.Println(err.Error())
-	// 	app.serverError(w, err)
-	// 	return
-	// }
+	err = ts.Execute(w, data)
 
-	// err = ts.Execute(w, nil)
-
-	// if err != nil {
-	// 	app.errorLog.Println(err.Error())
-	// 	app.serverError(w, err)
-	// }
+	if err != nil {
+		app.errorLog.Println(err.Error())
+		app.serverError(w, err)
+	}
 
 }
 
@@ -86,5 +85,28 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", s)
+	data := &templateData{Snippet: s}
+
+	files := []string{
+		"../../ui/html/show.html",
+		"../../ui/html/base.html",
+		"../../ui/html/footer.html",
+	}
+
+	// Parse template files
+	ts, err := template.ParseFiles(files...)
+
+	if err != nil {
+		app.errorLog.Println(err.Error())
+		app.serverError(w, err)
+		return
+	}
+
+	err = ts.Execute(w, data)
+
+	if err != nil {
+		app.errorLog.Println(err.Error())
+		app.serverError(w, err)
+	}
+
 }

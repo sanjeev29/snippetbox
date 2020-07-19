@@ -49,7 +49,7 @@ func main() {
 		Handler:  app.routes(),
 	}
 
-	infoLog.Println("Starting server on %s", *addr)
+	infoLog.Printf("Starting server on %s", *addr)
 
 	// Call ListenAndServe() method from custom http.Server struct
 	err = srv.ListenAndServe()

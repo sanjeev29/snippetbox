@@ -44,7 +44,18 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Create new snippet.."))
+	title := "Test title"
+	content := "This is the content for the test title"
+	expires := "7"
+
+	id, err := app.snippets.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	// Redirect user to relevant page for the snippet
+	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {

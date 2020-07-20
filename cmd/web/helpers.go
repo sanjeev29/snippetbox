@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
 
 // Write error message and stack trace to errorLogger
@@ -26,6 +27,17 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
+// Func to add default data to templateData struct
+func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
+	if td == nil {
+		td = &templateData{}
+	}
+	td.CurrentYear = time.Now().Year()
+
+	return td
+
+}
+
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	// retrieve template set from cache based on page name
 	ts, ok := app.templateCache[name]
@@ -37,7 +49,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	// init a new buffer
 	buf := new(bytes.Buffer)
 
-	err := ts.Execute(buf, td)
+	err := ts.Execute(buf, app.addDefaultData(td, r))
 	if err != nil {
 		app.serverError(w, err)
 		return

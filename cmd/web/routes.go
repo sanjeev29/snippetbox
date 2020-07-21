@@ -15,6 +15,6 @@ func (app *application) routes() http.Handler {
 	// Register filesServer as handler
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	return secureHeaders(mux)
+	return app.logRequest(secureHeaders(mux))
 
 }

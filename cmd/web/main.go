@@ -7,16 +7,19 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"snippetbox/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golangcollege/sessions"
 )
 
 // application struct to handle application-wide dependencies
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
+	session       *sessions.Session
 	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
 }
@@ -25,6 +28,7 @@ func main() {
 	// Parsing runtime config settings
 	addr := flag.String("addr", ":8000", "HTTP Network Address")
 	dsn := flag.String("dsn", "root:password@/snippetbox?parseTime=true", "MySQL data source name")
+	secret := flag.String("secret", "ZStSomZTROgPDIgWGDY0umtUHS2cNkL5", "Secret key (max 32 bytes long)")
 	flag.Parse()
 
 	// Define new loggers for information messages and error messages
@@ -44,9 +48,14 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	// init new session manager
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
+		session:       session,
 		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
 	}

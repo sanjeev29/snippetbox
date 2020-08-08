@@ -17,7 +17,7 @@ type templateData struct {
 	Snippet           *models.Snippet
 	Snippets          []*models.Snippet
 	Users             *models.User
-	AuthenticatedUser int
+	AuthenticatedUser *models.User
 	CSRFToken         string
 }
 

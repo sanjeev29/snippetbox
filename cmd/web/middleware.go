@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 // middleware func to add secure headers to every response
@@ -47,4 +49,17 @@ func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// middleware func to generate CSRF token and send to user in a CSRF cookie
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+	})
+
+	return csrfHandler
 }

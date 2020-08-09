@@ -1,40 +1,28 @@
 package main
 
 import (
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 )
 
 func TestPing(t *testing.T) {
-	// init new httptest.ResponseRecorder
-	rr := httptest.NewRecorder()
 
-	// init a new dummy http.Request
-	r, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// create application struct and add mock loggers
+	app := newTestApplication(t)
 
-	// call the ping handler function
-	ping(rr, r)
+	// create new test server
+	ts := newTestServer(t, app.routes())
+	defer ts.Close()
 
-	// get response from http.ResponseRecorder
-	rs := rr.Result()
+	// make a GET request to /ping
+	statusCode, _, body := ts.get(t, "/ping")
 
 	// examine response status code
-	if rs.StatusCode != http.StatusOK {
-		t.Errorf("want %d; got %d", http.StatusOK, rs.StatusCode)
+	if statusCode != http.StatusOK {
+		t.Errorf("want %d; got %d", http.StatusOK, statusCode)
 	}
 
-	// validate response body
-	defer rs.Body.Close()
-	body, err := ioutil.ReadAll(rs.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	// examine response body
 	if string(body) != "OK" {
 		t.Errorf("want response body data to equal %q", "OK")
 	}

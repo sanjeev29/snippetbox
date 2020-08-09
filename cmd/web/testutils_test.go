@@ -6,14 +6,34 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
+	"snippetbox/pkg/models/mock"
 	"testing"
+	"time"
+
+	"github.com/golangcollege/sessions"
 )
 
 // func to return application struct with mocked dependencies
 func newTestApplication(t *testing.T) *application {
+	// create instance of template cache
+	templateCache, err := newTemplateCache("../ui/html/")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// create session manager instance
+	session := sessions.New([]byte("3dSm5MnygFHh7XidAtbskXrjbwfoJcbJ"))
+	session.Lifetime = 12 * time.Hour
+	session.Secure = true
+
+	// initialize dependencies with mock loggers
 	return &application{
-		errorLog: log.New(ioutil.Discard, "", 0),
-		infoLog:  log.New(ioutil.Discard, "", 0),
+		errorLog:      log.New(ioutil.Discard, "", 0),
+		infoLog:       log.New(ioutil.Discard, "", 0),
+		session:       session,
+		snippets:      &mock.SnippetModel{},
+		users:         &mock.UserModel{},
+		templateCache: templateCache,
 	}
 }
 

@@ -16,7 +16,7 @@ import (
 // func to return application struct with mocked dependencies
 func newTestApplication(t *testing.T) *application {
 	// create instance of template cache
-	templateCache, err := newTemplateCache("../ui/html/")
+	templateCache, err := newTemplateCache("./../../ui/html/")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +65,7 @@ func newTestServer(t *testing.T, h http.Handler) *testServer {
 
 // func to run GET request on test server and return response status code, headers and body
 func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, []byte) {
-	rs, err := ts.Client().Get(ts.URL + "/ping")
+	rs, err := ts.Client().Get(ts.URL + urlPath)
 	if err != nil {
 		t.Fatal(err)
 	}
